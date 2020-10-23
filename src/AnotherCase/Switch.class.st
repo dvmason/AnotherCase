@@ -12,7 +12,7 @@ Class {
 	#category : #AnotherCase
 }
 
-{ #category : #'instance creation' }
+{ #category : #'matching - testing' }
 Switch >> case: val do: block [
 	done ifFalse: [
 		key = val ifTrue: [
@@ -21,7 +21,7 @@ Switch >> case: val do: block [
 	^ result
 ]
 
-{ #category : #'instance creation' }
+{ #category : #'matching - testing' }
 Switch >> caseOneOf: aCollection do: aBlock [
 	done ifFalse: [
 		aCollection do: [:each |
@@ -32,7 +32,7 @@ Switch >> caseOneOf: aCollection do: aBlock [
 	^ result
 ]
 
-{ #category : #'instance creation' }
+{ #category : #'matching - testing' }
 Switch >> if: aBoolean do: aBlock [
 	done ifFalse: [
 		aBoolean ifTrue: [
@@ -41,13 +41,22 @@ Switch >> if: aBoolean do: aBlock [
 	^ result
 ]
 
-{ #category : #'instance creation' }
+{ #category : #initialization }
 Switch >> initialize [
 	done := false.
 
 ]
 
-{ #category : #'instance creation' }
+{ #category : #'matching - testing' }
+Switch >> match: testBlock do: doBlock [
+	done ifFalse: [
+		(key applyTest: testBlock) ifTrue: [
+			result := key apply: doBlock.
+			done := true]].
+	^ result
+]
+
+{ #category : #'matching - testing' }
 Switch >> otherwise: aBlock [
 	done ifFalse: [
 		result := key apply: aBlock.
