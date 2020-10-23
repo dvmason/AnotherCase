@@ -16,7 +16,7 @@ Class {
 Switch >> case: val do: block [
 	done ifFalse: [
 		key = val ifTrue: [
-			result := block value.
+			result := key apply: block.
 			done := true]].
 	^ result
 ]
@@ -26,7 +26,7 @@ Switch >> caseOneOf: aCollection do: aBlock [
 	done ifFalse: [
 		aCollection do: [:each |
 			key = each ifTrue: [
-				result := aBlock value.
+				result := key apply: aBlock.
 				done := true.
 				^ result]]].
 	^ result
@@ -50,11 +50,7 @@ Switch >> initialize [
 { #category : #'instance creation' }
 Switch >> otherwise: aBlock [
 	done ifFalse: [
-	result := (aBlock isBlock and: [ aBlock argumentCount = 1 ]) ifTrue: [
-			aBlock value: key
-		] ifFalse: [
-			aBlock value
-		].
+		result := key apply: aBlock.
 		done := true].
 	^ result
 ]
