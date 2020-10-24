@@ -33,11 +33,19 @@ Switch >> caseOneOf: aCollection do: aBlock [
 ]
 
 { #category : #'matching - testing' }
-Switch >> if: aBoolean do: aBlock [
+Switch >> if: anObject do: doBlock [
 	done ifFalse: [
-		aBoolean ifTrue: [
-			result := aBlock value.
-			done := true]].
+			anObject == true ifTrue: [
+				result := key apply: doBlock.
+				done := true].
+			(anObject isSymbol ifTrue: [
+					anObject value: key
+				] ifFalse: [
+					anObject isCollection and: [ key applyPredicates: anObject ]
+				]) ifTrue: [
+					result := key apply: doBlock.
+					done := true].
+		].
 	^ result
 ]
 

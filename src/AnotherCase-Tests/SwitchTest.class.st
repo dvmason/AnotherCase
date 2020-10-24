@@ -5,6 +5,36 @@ Class {
 }
 
 { #category : #tests }
+SwitchTest >> testArray [
+	| array |
+	array := #(1 2 3).
+	self assert: (array switch
+		match: [: l : r : x | l = 1 and: [ r = 2 ] ] do: [: l : r : x | l+r+x];
+		case: 3 do: 42;
+		otherwise: 17) equals: 6.
+	self assert: (3 switch
+		match: [: l : r : x | l = 1 ] do: [: l : r : x | l+r];
+		case: 3 do: 42;
+		otherwise: 17) equals: 42.
+	self assert: (array switch
+		match: [: l : r : x | false ] do: [: l : r : x | 17];
+		case: 3 do: 42;
+		otherwise: [: l : r : x | l+r]) equals: 3.
+	self assert: (array switch
+		match: [: l : r | false ] do: [: l : r | 99];
+		match: [: l : r : x | false ] do: [: l : r : x | 17];
+		case: 3 do: 42;
+		otherwise: #yourself) equals: array.
+	self assert: (array switch
+		if: #(isString isNumber) do: [: l : r | 17];
+		if: #(isString isNumber isNumber) do: [: l : r : x | 17];
+		if: #(isNumber isNumber isNumber) do: [: l : r : x | r];
+		case: 3 do: 42;
+		otherwise: #yourself) equals: 2.
+
+]
+
+{ #category : #tests }
 SwitchTest >> testBlocks [
 	self assert: (1 switch
 		case: 1 do: [ 3+10];
@@ -60,31 +90,7 @@ SwitchTest >> testMatch [
 ]
 
 { #category : #tests }
-SwitchTest >> testMatchArray [
-	| array |
-	Smalltalk at: #Tuple ifAbsent: [ ^ self ].
-	array := #(1 2 3).
-	self assert: (array switch
-		match: [: l : r : x | l = 1 and: [ r = 2 ] ] do: [: l : r : x | l+r+x];
-		case: 3 do: 42;
-		otherwise: 17) equals: 6.
-	self assert: (3 switch
-		match: [: l : r : x | l = 1 ] do: [: l : r | l+r];
-		case: 3 do: 42;
-		otherwise: 17) equals: 42.
-	self assert: (array switch
-		match: [: l : r : x | false ] do: [: l : r | 17];
-		case: 3 do: 42;
-		otherwise: [: l : r : x | l+r]) equals: 3.
-	self assert: (array switch
-		match: [: l : r : x | false ] do: [: l : r | 17];
-		case: 3 do: 42;
-		otherwise: #yourself) equals: array.
-
-]
-
-{ #category : #tests }
-SwitchTest >> testMatchPair [
+SwitchTest >> testPair [
 	| pairClass pair |
 	pairClass := Smalltalk at: #Pair ifAbsent: [ ^ self ].
 	pair := pairClass with: 1 with: 2.
@@ -101,33 +107,30 @@ SwitchTest >> testMatchPair [
 		case: 3 do: 42;
 		otherwise: [: l : r | l+r]) equals: 3.
 	self assert: (pair switch
+		match: [: l : r : x | false ] do: [: l : r : x | 17];
 		match: [: l : r | false ] do: [: l : r | 17];
 		case: 3 do: 42;
 		otherwise: #yourself) equals: pair.
+	self assert: (pair switch
+		if: #(isString isNumber) do: [: l : r | 17];
+		if: #(isNumber isNumber) do: [: l : r | r];
+		case: 3 do: 42;
+		otherwise: #yourself) equals: 2.
 
 ]
 
 { #category : #tests }
-SwitchTest >> testMatchTuple [
-	| tupleClass tuple |
-	tupleClass := Smalltalk at: #Tuple ifAbsent: [ ^ self ].
-	tuple := tupleClass with: 1 with: 2 with: 3.
-	self assert: (tuple switch
-		match: [: l : r : x | l = 1 and: [ r = 2 ] ] do: [: l : r : x | l+r+x];
-		case: 3 do: 42;
-		otherwise: 17) equals: 6.
-	self assert: (3 switch
-		match: [: l : r : x | l = 1 ] do: [: l : r | l+r];
-		case: 3 do: 42;
-		otherwise: 17) equals: 42.
-	self assert: (tuple switch
-		match: [: l : r : x | false ] do: [: l : r | 17];
-		case: 3 do: 42;
-		otherwise: [: l : r : x | l+r]) equals: 3.
-	self assert: (tuple switch
-		match: [: l : r : x | false ] do: [: l : r | 17];
-		case: 3 do: 42;
-		otherwise: #yourself) equals: tuple.
+SwitchTest >> testPredicates [
+	self assert: (7 switch
+		if: 5 squared > 25 do: [ 1 ];
+		if: #isNumber do: [: v | v negated ];
+		otherwise: [ 3 ]) equals: -7.
+	self assert: ((3->7) switch
+		if: 5 squared > 25 do: [ 1 ];
+		if: #isNumber do: [: v | v negated ];
+		if: #(isNumber isString) do: [: k : v | 99 ];
+		if: #(isNumber isNumber) do: [: k : v | v negated ];
+		otherwise: [ 3 ]) equals: -7.
 
 ]
 
@@ -145,5 +148,36 @@ SwitchTest >> testSimple [
 		case: 1 do: [ 3+10];
 		case: 3 do: 42;
 		otherwise: 17) equals: 17.
+
+]
+
+{ #category : #tests }
+SwitchTest >> testTuple [
+	| tupleClass tuple |
+	tupleClass := Smalltalk at: #Tuple ifAbsent: [ ^ self ].
+	tuple := tupleClass with: 1 with: 2 with: 3.
+	self assert: (tuple switch
+		match: [: l : r : x | l = 1 and: [ r = 2 ] ] do: [: l : r : x | l+r+x];
+		case: 3 do: 42;
+		otherwise: 17) equals: 6.
+	self assert: (3 switch
+		match: [: l : r : x | l = 1 ] do: [: l : r : x | l+r];
+		case: 3 do: 42;
+		otherwise: 17) equals: 42.
+	self assert: (tuple switch
+		match: [: l : r : x | false ] do: [: l : r : x | 17];
+		case: 3 do: 42;
+		otherwise: [: l : r : x | l+r]) equals: 3.
+	self assert: (tuple switch
+		match: [: l : r | false ] do: [: l : r | 99];
+		match: [: l : r : x | false ] do: [: l : r : x | 17];
+		case: 3 do: 42;
+		otherwise: #yourself) equals: tuple.
+	self assert: (tuple switch
+		if: #(isString isNumber) do: [: l : r | 17];
+		if: #(isString isNumber isNumber) do: [: l : r : x | 17];
+		if: #(isNumber isNumber isNumber) do: [: l : r : x | r];
+		case: 3 do: 42;
+		otherwise: #yourself) equals: 2.
 
 ]

@@ -10,6 +10,12 @@ Association >> apply: aBlock [
 ]
 
 { #category : #'*AnotherCase' }
+Association >> applyPredicates: aCollection [ 
+	^ aCollection size = 2 and: [ (aCollection first value: key) and: [ aCollection second value: value ] ]
+]
+
+{ #category : #'*AnotherCase' }
 Association >> applyTest: aBlock [
-	^ self apply: aBlock
+	aBlock argumentCount = 2 ifTrue: [ ^ self apply: aBlock ].
+	^ aBlock argumentCount <= 1 and: [ aBlock cull: self ]
 ]
