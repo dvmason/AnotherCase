@@ -1,5 +1,9 @@
 "
-I implement a switch statement. See the tests for example uses.
+I implement a switch statement.
+
+It is very flexible. You can match values, lists of values, boolean expressions, predicate symbols, predicate blocks
+
+See the tests for example uses.
 "
 Class {
 	#name : #Switch,
@@ -14,38 +18,40 @@ Class {
 
 { #category : #'matching - testing' }
 Switch >> case: val do: block [
-	done ifFalse: [
-		key = val ifTrue: [
-			result := key apply: block.
-			done := true]].
+	done ifTrue: [ ^ result ].
+	key = val ifTrue: [
+		result := key apply: block.
+		done := true].
 	^ result
 ]
 
 { #category : #'matching - testing' }
 Switch >> caseOneOf: aCollection do: aBlock [
-	done ifFalse: [
-		aCollection do: [:each |
-			key = each ifTrue: [
-				result := key apply: aBlock.
-				done := true.
-				^ result]]].
+	done ifTrue: [ ^ result ].
+	aCollection do: [:each |
+		key = each ifTrue: [
+			done := true.
+			^ result := key apply: aBlock ]].
 	^ result
 ]
 
 { #category : #'matching - testing' }
 Switch >> if: anObject do: doBlock [
-	done ifFalse: [
-			anObject == true ifTrue: [
-				result := key apply: doBlock.
-				done := true].
-			(anObject isSymbol ifTrue: [
-					anObject value: key
-				] ifFalse: [
-					anObject isCollection and: [ key applyPredicates: anObject ]
-				]) ifTrue: [
-					result := key apply: doBlock.
-					done := true].
-		].
+	done ifTrue: [ ^ result ].
+	anObject == false ifTrue: [ ^ result ].
+	anObject == true ifTrue: [
+		result := key apply: doBlock.
+		done := true].
+	(anObject isSymbol ifTrue: [
+			anObject value: key
+		] ifFalse: [
+			anObject isClass ifTrue: [
+				key isKindOf: anObject
+			] ifFalse: [
+				anObject isCollection and: [ key applyPredicates: anObject ]
+		]]) ifTrue: [
+			result := key apply: doBlock.
+			done := true].
 	^ result
 ]
 
@@ -57,19 +63,18 @@ Switch >> initialize [
 
 { #category : #'matching - testing' }
 Switch >> match: testBlock do: doBlock [
-	done ifFalse: [
-		(key applyTest: testBlock) ifTrue: [
-			result := key apply: doBlock.
-			done := true]].
+	done ifTrue: [ ^ result ].
+	(key applyTest: testBlock) ifTrue: [
+		result := key apply: doBlock.
+		done := true].
 	^ result
 ]
 
 { #category : #'matching - testing' }
 Switch >> otherwise: aBlock [
-	done ifFalse: [
-		result := key apply: aBlock.
-		done := true].
-	^ result
+	done ifTrue: [ ^ result ].
+	done := true.
+	^ result := key apply: aBlock
 ]
 
 { #category : #'instance creation' }

@@ -131,6 +131,18 @@ SwitchTest >> testPredicates [
 		if: #(isNumber isString) do: [: k : v | 99 ];
 		if: #(isNumber isNumber) do: [: k : v | v negated ];
 		otherwise: [ 3 ]) equals: -7.
+	self assert: ((3->7) switch
+		if: 5 squared > 25 do: [ 1 ];
+		if: Association do: [: v | 42 ];
+		if: #(isNumber isString) do: [: k : v | 99 ];
+		if: #(isNumber isNumber) do: [: k : v | v negated ];
+		otherwise: [ 3 ]) equals: 42.
+	self assert: ((3->7) switch
+		if: 5 squared > 25 do: [ 1 ];
+		if: Integer do: [: v | v negated ];
+		if: {Number . String} do: [: k : v | 99 ];
+		if: {Number . Number} do: [: k : v | v negated ];
+		otherwise: [ 3 ]) equals: -7.
 
 ]
 

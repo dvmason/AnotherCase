@@ -13,7 +13,12 @@ SequenceableCollection >> apply: aBlock [
 { #category : #'*AnotherCase' }
 SequenceableCollection >> applyPredicates: aCollection [
 	self size = aCollection size ifFalse: [ ^ false ].
-	self with: aCollection do: [: each : predicate | (predicate value: each) ifFalse: [ ^ false ] ].
+	self with: aCollection do: [: each : predicate |
+		(predicate isClass ifTrue: [
+				each isKindOf: predicate
+			] ifFalse: [ 
+				predicate value: each
+			]) ifFalse: [ ^ false ] ].
 	^ true 
 ]
 

@@ -11,7 +11,14 @@ Association >> apply: aBlock [
 
 { #category : #'*AnotherCase' }
 Association >> applyPredicates: aCollection [ 
-	^ aCollection size = 2 and: [ (aCollection first value: key) and: [ aCollection second value: value ] ]
+	| temp |
+	^ aCollection size = 2 and: [
+		((temp := aCollection first) isClass ifTrue: [
+				key isKindOf: temp
+			] ifFalse: [ temp value: key ]) and: [
+				( temp := aCollection second) isClass ifTrue: [
+						value isKindOf: temp
+					 ] ifFalse: [ temp value: value ]]]
 ]
 
 { #category : #'*AnotherCase' }
